@@ -19,3 +19,4 @@ private-keys.json
 __pycache__/
 .pytest_cache/
 *.tsbuildinfo
+.vercel
