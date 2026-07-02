@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body { height: 100%; }
+body { @apply bg-bg text-ink font-sans antialiased; }
+
+::selection { background: rgba(36, 92, 74, 0.16); }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #c7d0c2; border-radius: 6px; border: 3px solid #F4F7F2; }
+::-webkit-scrollbar-thumb:hover { background: #aebaa8; }
+
+@layer components {
+  .panel { @apply rounded-md border border-line bg-surface shadow-panel; }
+  .label { @apply text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-muted; }
+  .field {
+    @apply w-full rounded-md border border-line bg-bg px-3 py-2 text-sm text-ink
+      placeholder:text-muted/60 focus:border-forge focus:bg-surface focus:outline-none
+      focus:ring-1 focus:ring-forge/30 transition-colors;
+  }
+  .btn { @apply inline-flex select-none items-center justify-center gap-2 rounded-md border px-3.5 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-primary { @apply border-forge bg-forge text-white hover:bg-[#1d4c3d]; }
+  .btn-ghost { @apply border-line bg-surface text-ink hover:bg-bg; }
+  .btn-amber { @apply border-amber bg-amber text-white hover:bg-[#bf6905]; }
+  .btn-blue { @apply border-blue bg-blue text-white hover:bg-[#1d4ed8]; }
+  .btn-xs { @apply px-2.5 py-1 text-xs; }
+  .mono { @apply font-mono tabular-nums; }
+  .chip { @apply inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-semibold; }
+  .th { @apply px-3 py-2 text-left text-[0.6875rem] font-semibold uppercase tracking-wide text-muted; }
+}
