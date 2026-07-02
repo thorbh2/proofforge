@@ -8,7 +8,7 @@ Creators publish missions, contributors submit proof URLs, and GenLayer evaluate
 
 | Surface | Link |
 | --- | --- |
-| App | https://proofforge.vercel.app |
+| App | https://proofforge-iota.vercel.app |
 | GitHub | https://github.com/thorbh2/proofforge |
 | Contract | https://explorer-studio.genlayer.com/contracts/0x2b07227D8440693A7940e81b84332Df6bf431B2d |
 | Network | GenLayer Studionet |
