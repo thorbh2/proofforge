@@ -144,9 +144,15 @@ class ProofForge(gl.Contract):
     audits: DynArray[str]
     profiles: TreeMap[str, str]
     clock: u256
+    admin: str
 
     def __init__(self):
         self.clock = 0
+        self.admin = gl.message.sender_address.as_hex
+
+    def _require_reviewer(self, mission: dict, actor: str) -> None:
+        if mission["creator"].lower() != actor.lower() and self.admin.lower() != actor.lower():
+            raise Exception("only_mission_creator_or_protocol_reviewer")
 
     # ── internal storage helpers (deterministic) ──
     def _load_mission(self, mid: str) -> dict:
@@ -302,6 +308,7 @@ class ProofForge(gl.Contract):
         self.clock += 1
         actor = gl.message.sender_address.as_hex
         m = self._load_mission(mission_id)
+        self._require_reviewer(m, actor)
         sub = self._load_submission(submission_id)
         if sub["missionId"] != mission_id:
             raise Exception("mission_submission_mismatch")
@@ -390,6 +397,7 @@ class ProofForge(gl.Contract):
             raise Exception("invalid_transition")
         sub = self._load_submission(ch["submissionId"])
         m = self._load_mission(ch["missionId"])
+        self._require_reviewer(m, actor)
         crit = m["acceptanceCriteria"]
         title = m["title"]
         prior = sub["reviewSummary"]
@@ -416,6 +424,9 @@ class ProofForge(gl.Contract):
             self._rep(sub["contributor"], -8, "challengesLost")
             self._rep(ch["challenger"], 6, "challengesWon")
             sub["status"] = "rejected"
+            sub["verdict"] = "rejected"
+            sub["score"] = 0
+            m["status"] = "reviewing"
             self._store_submission(sub)
         else:
             self._rep(ch["challenger"], -2, "")
@@ -432,6 +443,8 @@ class ProofForge(gl.Contract):
         sub = self._load_submission(submission_id)
         if sub["missionId"] != mission_id:
             raise Exception("mission_submission_mismatch")
+        if sub["contributor"].lower() != appellant.lower():
+            raise Exception("only_submission_contributor_can_appeal")
         if sub["status"] not in ("rejected", "revision_requested", "challenged"):
             raise Exception("invalid_transition")
         reason = (reason or "").strip()
@@ -460,6 +473,7 @@ class ProofForge(gl.Contract):
             raise Exception("invalid_transition")
         sub = self._load_submission(ap["submissionId"])
         m = self._load_mission(ap["missionId"])
+        self._require_reviewer(m, actor)
         crit = m["acceptanceCriteria"]
         title = m["title"]
         prior = sub["reviewSummary"]
@@ -485,6 +499,8 @@ class ProofForge(gl.Contract):
             self._rep(ap["appellant"], 5, "appealsWon")
             sub["status"] = "accepted"
             sub["verdict"] = "accepted"
+            sub["score"] = max(int(sub.get("score", 0)), int(m["minScoreToPass"]))
+            m["status"] = "reviewing"
             self._store_submission(sub)
         else:
             self._rep(ap["appellant"], -2, "appealsLost")
@@ -507,6 +523,12 @@ class ProofForge(gl.Contract):
         best_score = -1
         for sid in m["submissionIds"]:
             s = self._load_submission(sid)
+            for cid in s.get("challengeIds", []):
+                if self._load_challenge(cid)["status"] == "open":
+                    raise Exception("open_challenge_blocks_finalize")
+            for aid in s.get("appealIds", []):
+                if self._load_appeal(aid)["status"] == "open":
+                    raise Exception("open_appeal_blocks_finalize")
             if s["status"] == "accepted" and int(s["score"]) >= int(m["minScoreToPass"]) and int(s["score"]) > best_score:
                 best = sid
                 best_score = int(s["score"])

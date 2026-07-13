@@ -6,7 +6,7 @@ import { TransactionStatus, type TransactionHash } from "genlayer-js/types";
 import type { Mission, Submission, Challenge, Appeal, Profile, AuditRecord, PublicStats } from "./types";
 
 export const CONTRACT = (
-  process.env.NEXT_PUBLIC_PROOFFORGE_ADDRESS ?? "0x2b07227D8440693A7940e81b84332Df6bf431B2d"
+  process.env.NEXT_PUBLIC_PROOFFORGE_ADDRESS ?? "0x2e076A8f005289398800B48595A97b7DeB765c8c"
 ).trim();
 export const CHAIN_ID = Number(process.env.NEXT_PUBLIC_GENLAYER_CHAIN_ID ?? 61999);
 export const NETWORK = process.env.NEXT_PUBLIC_GENLAYER_NETWORK ?? "studionet";
